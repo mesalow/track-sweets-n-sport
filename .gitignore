@@ -25,3 +25,4 @@ typings/
 out/
 
 .webpack/
+database.db
