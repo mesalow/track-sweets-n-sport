@@ -2,9 +2,17 @@ import { IpcMainInvokeEvent } from "electron";
 import { Database } from "sqlite";
 import { DayDTO } from "./updateDay";
 
-export const getAllDays =  (dbConnection: Database) => async function (event: IpcMainInvokeEvent, month: number): Promise<DayDTO[]> {
-    return [
-        { year: 2022, month: 6, day: 1, sweetConsumption: true, sportActivity: true, currentWeight: 100},
-        { year: 2022, month: 6, day: 2, sweetConsumption: false, sportActivity: true, currentWeight: 100},
-    ];
+export const getAllDays =  (dbConnection: Database) => async function (event: IpcMainInvokeEvent, year: number, month: number): Promise<DayDTO[]> {
+    console.log('getAllDays, args:', year, month);
+    const rows = await dbConnection.all(`SELECT * FROM tracked_day WHERE y = ${year} AND m = ${month};`);
+    return rows.map((row) => {
+        return {
+            year: row.y,
+            month: row.m,
+            day: row.d,
+            sweetConsumption: row.sweet_intake === 1,
+            sportActivity: row.sport_activity === 1,
+            currentWeight: row.current_weight
+        }
+    });
 } 
