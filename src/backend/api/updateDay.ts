@@ -17,6 +17,7 @@ export interface UpdateResponse {
 }
 
 export const  updateDay = (dbConnection: Database) => async function (event: IpcMainInvokeEvent,day: DayDTO): Promise<UpdateResponse> {
-    console.log(day);
+    console.log('updateDay', day);
+    await dbConnection.run(`UPDATE tracked_day SET 'sweet_intake' = ${day.sweetConsumption ? 1: 0} WHERE tracked_day.y = ${day.year} AND tracked_day.m = ${day.month} AND tracked_day.d = ${day.day}`)
     return {status: "OK"};
 }
