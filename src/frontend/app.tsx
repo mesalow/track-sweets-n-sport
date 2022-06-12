@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import * as ReactDOM from 'react-dom/client';
 import { electronAPI } from '../preload';
 import { DayDTO } from '../backend/api/updateDay';
+import { Calendar } from './components/calendar';
+import { getNumberOfDays, monthFromDate } from './components/calendar/helper';
 
 declare global {
     interface Window {
@@ -15,23 +17,33 @@ if (!containerElement) {
 const root = ReactDOM.createRoot(containerElement);
 function App() {
     const [days, setDays ] = useState([] as DayDTO[]);
+    const [year, setYear] = useState(2022);
     const [month, setMonth] = useState(6);
-    const updateDays = async(month: number) => {
+    const [userHasUpdated, setUserHasUpdated] = useState(0);
+    const updateDays = async(month: number): Promise<any> => {
         console.log('call to myApi with month', month);
-        const daysFromAPI = await window.myAPI.getAllDays(2022, month);
+        const daysFromAPI = await window.myAPI.getAllDays(year, month);
+        if (daysFromAPI.length === 0) {
+            await window.myAPI.fillMonth(year, month, getNumberOfDays(monthFromDate(new Date(year, month - 1, 15))));
+            return await updateDays(month);
+        }
         console.log('received days %o', daysFromAPI);
         setDays(daysFromAPI);
     }
+    const onDayUpdate = () => {
+        setUserHasUpdated(userHasUpdated+1);
+    }
     useEffect(() => {
         updateDays(month);
-    }, [month])
+    }, [month, userHasUpdated])
     return (<div>
         <h2>Hello from React!</h2>
         <p>Current month is June</p>
-        <select value={month} onChange={(event) => setMonth(parseInt(event.target.value,10))}>
-            {[1,2,3,4,5,6,7,8,9,10,11,12].map(monthNumber => (<option>{monthNumber}</option>))}
+        <select value={month} onChange={(event) => { setMonth(parseInt(event.target.value,10)); }}>
+            {[1,2,3,4,5,6,7,8,9,10,11,12].map((monthNumber, idx) => (<option key={idx}>{monthNumber}</option>))}
         </select>
-        <ul>{days.map((day: DayDTO) => {  return (<li style={day.sweetConsumption ? {backgroundColor: 'red'} : {}}>{day.year} {day.month} {day.day} {day.sweetConsumption}</li>)})}</ul></div>);
+        <Calendar days={days} monthInCalendar={monthFromDate(new Date(year, month - 1, 15))} onChange={onDayUpdate}></Calendar>
+        </div>);
 }
 
 root.render(<App></App>)
