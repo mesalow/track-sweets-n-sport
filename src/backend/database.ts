@@ -1,9 +1,15 @@
 import * as sqlite3 from "sqlite3";
 import { Database, open } from "sqlite";
+import { app } from "electron";
+import path from "path";
+
 
 export async function connectAndPopulateDatabase() {
+    const userDir = app.getPath('userData');
+    const pathToDatabase = path.join(userDir,"database.db");
+    console.log('opening or creating database at path', pathToDatabase);
     const db = await open({
-        filename: "./database.db",
+        filename: pathToDatabase,
         driver: sqlite3.Database,
       });
       await db.migrate();
