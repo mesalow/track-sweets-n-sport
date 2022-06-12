@@ -6,12 +6,7 @@ export type DayInMonth =  readonly [weekIndex: number, dayIndex: number];
 
 export function getNumberOfWeeks(month: Month): number {
     const lengthOfMonth = getNumberOfDays(month);
-    let startDayIndex = getStartDayIndex(month);
-    // startDayIndex has 0 for sunday -> we want our rows to start on monday 
-    if (startDayIndex === 0) {
-        startDayIndex = 7;
-    }
-    startDayIndex--;
+    const startDayIndex = getStartDayIndex(month);
     // now it goes from 0 to 6, but starting at monday 
     const rawWeeks = Math.ceil( lengthOfMonth / 7)
     const rest = lengthOfMonth % 7;
@@ -24,10 +19,10 @@ function getWeekIndex(dayInMonth: DayInMonth) {
     return dayInMonth[0];
 }
 
-function getStartDayIndex(month: Month) {
+export function getStartDayIndex(month: Month) {
     return month[0];
 }
-function getNumberOfDays(month: Month) {
+export function getNumberOfDays(month: Month) {
     return month[1];
 }
 
@@ -36,9 +31,9 @@ function getEndDayIndex(month: Month) {
     const startDayIndex = getStartDayIndex(month);
     const rest = lengthOfMonth % 7;
     if (rest + startDayIndex > 7) {
-        return (rest+startDayIndex-7);
+        return (rest+startDayIndex-7)-1;
     }
-    return rest + startDayIndex;
+    return rest + startDayIndex-1;
 }
 
 
@@ -49,15 +44,21 @@ export function isInMonth(month: Month, dayInMonth: DayInMonth) {
 }
 
 export function monthFromDate(currentDate: Date): Month {
+    console.log('monthFromDate for date', currentDate);
     const firstDayOfMonth = startOfMonth(currentDate);
     const lastDayOfMonth = endOfMonth(currentDate);
-    const startDayIndex = getDay(firstDayOfMonth);
-    const difference = differenceInDays(lastDayOfMonth, firstDayOfMonth);
+    let startDayIndex = getDay(firstDayOfMonth);
+    if (startDayIndex === 0) {
+        startDayIndex = 6;
+    } else {
+        startDayIndex--;
+    }
+    const difference = differenceInDays(lastDayOfMonth, firstDayOfMonth) +1 ;
     const month: Month = [startDayIndex, difference];
+    console.log('monthFromDate, returning month', month);
     return month;
 }
-export function getWeeks(currentDate: Date): DayInMonth[] {
-    const month = monthFromDate(currentDate);
+export function getWeeks(month: Month): DayInMonth[] {
     // dayIndex = 0 - 6 , difference = length of month (?) 
     const numberOfWeeks = getNumberOfWeeks(month);
     console.log("getWeeks, numberOfWeeks", numberOfWeeks);
