@@ -37,7 +37,7 @@ function App() {
         updateDays(month);
     }, [month, userHasUpdated])
     return (<div>
-        <h2>Hello from React!</h2>
+        <h2>Die Sticker App</h2>
         <p>Current month is June</p>
         <select value={month} onChange={(event) => { setMonth(parseInt(event.target.value,10)); }}>
             {[1,2,3,4,5,6,7,8,9,10,11,12].map((monthNumber, idx) => (<option key={idx}>{monthNumber}</option>))}
