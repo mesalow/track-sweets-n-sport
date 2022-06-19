@@ -12,7 +12,7 @@ export async function connectAndPopulateDatabase() {
         filename: pathToDatabase,
         driver: sqlite3.Database,
       });
-      await db.migrate();
+      await db.migrate({migrationsPath: path.join("resources", "migrations")});
       await checkAndUpdatePeriod(db);
       return db;
 }
